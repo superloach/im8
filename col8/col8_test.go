@@ -1,6 +1,7 @@
 package col8_test
 
 import (
+	"fmt"
 	"image/color"
 	"testing"
 
@@ -9,32 +10,32 @@ import (
 
 var _ = color.Color(col8.Col8(0))
 
-type Col8Case struct {
-	Col        col8.Col8
-	R, G, B, A uint32
+type col8Case struct {
+	col        col8.Col8
+	r, g, b, a uint32
 }
 
-func (c Col8Case) Test(t *testing.T) {
-	cr, cg, cb, ca := c.Col.RGBA()
+func (c col8Case) test(t *testing.T) {
+	cr, cg, cb, ca := c.col.RGBA()
 
-	if cr != c.R {
-		t.Errorf("cr == %X != c.R == %X", cr, c.R)
+	if cr != c.r {
+		t.Errorf("cr == %04X != c.r == %04X", cr, c.r)
 	}
 
-	if cg != c.G {
-		t.Errorf("cg == %X != c.G == %X", cg, c.G)
+	if cg != c.g {
+		t.Errorf("cg == %04X != c.g == %04X", cg, c.g)
 	}
 
-	if cb != c.B {
-		t.Errorf("cb == %X != c.B == %X", cb, c.B)
+	if cb != c.b {
+		t.Errorf("cb == %04X != c.b == %04X", cb, c.b)
 	}
 
-	if ca != c.A {
-		t.Errorf("ca == %X != c.A == %X", ca, c.A)
+	if ca != c.a {
+		t.Errorf("ca == %04X != c.a == %04X", ca, c.a)
 	}
 }
 
-var cases = []Col8Case{
+var col8Cases = []col8Case{
 	{0b110000, 0xFFFF, 0x0000, 0x0000, 0xFFFF},
 	{0b00110000, 0xFFFF, 0x0000, 0x0000, 0xFFFF},
 	{0b01110000, 0xAAAA, 0x0000, 0x0000, 0xAAAA},
@@ -63,7 +64,7 @@ var cases = []Col8Case{
 }
 
 func TestCol8(t *testing.T) {
-	for _, col8Case := range cases {
-		col8Case.Test(t)
+	for i, c := range col8Cases {
+		t.Run(fmt.Sprint(i), c.test)
 	}
 }

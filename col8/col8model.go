@@ -1,6 +1,9 @@
 package col8
 
-import "image/color"
+import (
+	"fmt"
+	"image/color"
+)
 
 // Col8Model is the color.Model for the Col8 type.
 var Col8Model color.Model = color.ModelFunc(col8Model)
@@ -20,10 +23,12 @@ func col8Model(c color.Color) color.Color {
 	a = channelMask - a
 
 	if a == channelMask {
+		fmt.Printf("alpha %02b\n", channelMask)
 		return Col8(r<<4 + g<<2 + b)
 	}
 
-	if a == 0 {
+	if a == 0b00 {
+		fmt.Println("alpha 00")
 		return Col8(0)
 	}
 
