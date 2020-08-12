@@ -10,14 +10,6 @@ import (
 	"github.com/superloach/im8/col8"
 )
 
-const magic = "\x69IM8\n"
-
-type HeaderMismatchError [2]byte
-
-func (h HeaderMismatchError) Error() string {
-	return fmt.Sprintf("expected byte %q, got %q", h[0], h[1])
-}
-
 type Decoder struct {
 	header []byte
 	config *image.Config
@@ -31,7 +23,7 @@ func NewDecoder() *Decoder {
 func (d *Decoder) readHeader(r io.Reader) (int, error) {
 	n := 0
 
-	ohdr := []byte(magic)
+	ohdr := []byte(Magic)
 
 	if d.header == nil {
 		hdr := make([]byte, len(ohdr))
@@ -47,7 +39,7 @@ func (d *Decoder) readHeader(r io.Reader) (int, error) {
 
 	for i, b := range d.header {
 		if ohdr[i] != b {
-			return n, HeaderMismatchError{ohdr[i], b}
+			return n, MagicMismatchError{i, b}
 		}
 	}
 
@@ -159,5 +151,5 @@ func DecodeConfig(r io.Reader) (image.Config, error) {
 }
 
 func init() {
-	image.RegisterFormat("im8f", magic, Decode, DecodeConfig)
+	image.RegisterFormat("im8f", Magic, Decode, DecodeConfig)
 }

@@ -20,7 +20,7 @@ func NewEncoder(img *im8.Im8) *Encoder {
 	bounds := img.Bounds()
 
 	return &Encoder{
-		header: []byte(magic),
+		header: []byte(Magic),
 		config: &image.Config{
 			ColorModel: col8.Col8Model,
 			Width:      bounds.Dx(),
