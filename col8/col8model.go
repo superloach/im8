@@ -1,7 +1,6 @@
 package col8
 
 import (
-	"fmt"
 	"image/color"
 )
 
@@ -21,20 +20,6 @@ func col8Model(c color.Color) color.Color {
 	a /= channelScale
 
 	a = channelMask - a
-
-	if a == channelMask {
-		fmt.Printf("alpha %02b\n", channelMask)
-		return Col8(r<<4 + g<<2 + b)
-	}
-
-	if a == 0b00 {
-		fmt.Println("alpha 00")
-		return Col8(0)
-	}
-
-	r = (r * channelMask) / a
-	g = (g * channelMask) / a
-	b = (b * channelMask) / a
 
 	return Col8(a<<6 + r<<4 + g<<2 + b)
 }

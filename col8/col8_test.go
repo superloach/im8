@@ -19,19 +19,19 @@ func (c col8Case) test(t *testing.T) {
 	cr, cg, cb, ca := c.col.RGBA()
 
 	if cr != c.r {
-		t.Errorf("cr == %04X != c.r == %04X", cr, c.r)
+		t.Errorf("cr == %04x != c.r == %04x", cr, c.r)
 	}
 
 	if cg != c.g {
-		t.Errorf("cg == %04X != c.g == %04X", cg, c.g)
+		t.Errorf("cg == %04x != c.g == %04x", cg, c.g)
 	}
 
 	if cb != c.b {
-		t.Errorf("cb == %04X != c.b == %04X", cb, c.b)
+		t.Errorf("cb == %04x != c.b == %04x", cb, c.b)
 	}
 
 	if ca != c.a {
-		t.Errorf("ca == %04X != c.a == %04X", ca, c.a)
+		t.Errorf("ca == %04x != c.a == %04x", ca, c.a)
 	}
 }
 
