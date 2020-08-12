@@ -10,26 +10,28 @@ import (
 	"github.com/superloach/im8/col8"
 )
 
+// Decoder holds the data that is read in im8f format.
 type Decoder struct {
 	header []byte
 	config *image.Config
 	img    *im8.Im8
 }
 
+// NewDecoder returns an empty Decoder, ready for use.
+// &Decoder{} also works fine for this.
 func NewDecoder() *Decoder {
 	return &Decoder{}
 }
 
 func (d *Decoder) readHeader(r io.Reader) (int, error) {
 	n := 0
-
 	ohdr := []byte(Magic)
 
 	if d.header == nil {
 		hdr := make([]byte, len(ohdr))
-
 		m, err := r.Read(hdr)
 		n += m
+
 		if err != nil {
 			return n, fmt.Errorf("read hdr: %w", err)
 		}
@@ -47,10 +49,7 @@ func (d *Decoder) readHeader(r io.Reader) (int, error) {
 }
 
 func (d *Decoder) readConfig(r io.Reader) (int, error) {
-	n := 0
-
-	m, err := d.readHeader(r)
-	n += m
+	n, err := d.readHeader(r)
 	if err != nil {
 		return n, fmt.Errorf("read header: %w", err)
 	}
@@ -66,6 +65,7 @@ func (d *Decoder) readConfig(r io.Reader) (int, error) {
 	w := uint64(0)
 	err = binary.Read(r, binary.BigEndian, &w)
 	n += 8
+
 	if err != nil {
 		return n, fmt.Errorf("read w: %w", err)
 	}
@@ -75,6 +75,7 @@ func (d *Decoder) readConfig(r io.Reader) (int, error) {
 	h := uint64(0)
 	err = binary.Read(r, binary.BigEndian, &h)
 	n += 8
+
 	if err != nil {
 		return n, fmt.Errorf("read h: %w", err)
 	}
@@ -86,6 +87,7 @@ func (d *Decoder) readConfig(r io.Reader) (int, error) {
 	return n, nil
 }
 
+// Config reads an image.Config from r in im8f format.
 func (d *Decoder) Config(r io.Reader) (image.Config, error) {
 	if d.config != nil {
 		return *d.config, nil
@@ -100,10 +102,7 @@ func (d *Decoder) Config(r io.Reader) (image.Config, error) {
 }
 
 func (d *Decoder) readImage(r io.Reader) (int, error) {
-	n := 0
-
-	m, err := d.readConfig(r)
-	n += m
+	n, err := d.readConfig(r)
 	if err != nil {
 		return n, fmt.Errorf("read config: %w", err)
 	}
@@ -118,8 +117,9 @@ func (d *Decoder) readImage(r io.Reader) (int, error) {
 	img.Stride = d.config.Width
 	img.Rect = image.Rect(0, 0, d.config.Width, d.config.Height)
 
-	m, err = r.Read(img.Pix)
+	m, err := r.Read(img.Pix)
 	n += m
+
 	if err != nil {
 		return n, fmt.Errorf("read pix: %w", err)
 	}
@@ -129,6 +129,7 @@ func (d *Decoder) readImage(r io.Reader) (int, error) {
 	return n, nil
 }
 
+// Image reads an image.Image from r in im8f format.
 func (d *Decoder) Image(r io.Reader) (image.Image, error) {
 	if d.img != nil {
 		return d.img, nil
@@ -142,10 +143,12 @@ func (d *Decoder) Image(r io.Reader) (image.Image, error) {
 	return d.img, nil
 }
 
+// Decode reads an image.Image from r in im8f format.
 func Decode(r io.Reader) (image.Image, error) {
 	return NewDecoder().Image(r)
 }
 
+// DecodeConfig reads an image.Config from r in im8f format.
 func DecodeConfig(r io.Reader) (image.Config, error) {
 	return NewDecoder().Config(r)
 }

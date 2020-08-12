@@ -1,4 +1,4 @@
-// Package im8 provides an 8-bit image format Im8. PISS
+// Package im8 provides a 6- or 8-bit image format.
 package im8
 
 import (
@@ -20,6 +20,7 @@ type Im8 struct {
 	Rect image.Rectangle
 }
 
+// NewIm8 returns a new Im8 image with the given bounds.
 func NewIm8(r image.Rectangle) *Im8 {
 	return &Im8{
 		Pix:    make([]uint8, r.Dx()*r.Dy()),

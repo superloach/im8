@@ -10,35 +10,39 @@ import (
 	"github.com/superloach/im8/col8"
 )
 
+// Encoder contains all of the data that needs to be written in im8f format.
 type Encoder struct {
 	header []byte
 	config *image.Config
 	img    *im8.Im8
 }
 
-func NewEncoder(img *im8.Im8) *Encoder {
-	bounds := img.Bounds()
+// NewEncoder creates an Encoder for any image, using im8.Convert.
+func NewEncoder(src image.Image) *Encoder {
+	return NewIm8Encoder(im8.Convert(src))
+}
+
+// NewIm8Encoder creates an Encoder for an Im8.
+func NewIm8Encoder(img *im8.Im8) *Encoder {
+	b := img.Bounds()
 
 	return &Encoder{
 		header: []byte(Magic),
 		config: &image.Config{
 			ColorModel: col8.Col8Model,
-			Width:      bounds.Dx(),
-			Height:     bounds.Dy(),
+			Width:      b.Dx(),
+			Height:     b.Dy(),
 		},
 		img: img,
 	}
 }
 
 func (e *Encoder) writeHeader(w io.Writer) (int, error) {
-	n := 0
-
 	if e.header == nil {
 		return 0, nil
 	}
 
-	m, err := w.Write(e.header)
-	n += m
+	n, err := w.Write(e.header)
 	if err != nil {
 		return n, fmt.Errorf("write header: %w", err)
 	}
@@ -49,10 +53,7 @@ func (e *Encoder) writeHeader(w io.Writer) (int, error) {
 }
 
 func (e *Encoder) writeConfig(w io.Writer) (int, error) {
-	n := 0
-
-	m, err := e.writeHeader(w)
-	n += m
+	n, err := e.writeHeader(w)
 	if err != nil {
 		return n, fmt.Errorf("write header: %w", err)
 	}
@@ -63,12 +64,14 @@ func (e *Encoder) writeConfig(w io.Writer) (int, error) {
 
 	err = binary.Write(w, binary.BigEndian, uint64(e.config.Width))
 	n += 8
+
 	if err != nil {
 		return n, fmt.Errorf("write width: %w", err)
 	}
 
 	err = binary.Write(w, binary.BigEndian, uint64(e.config.Height))
 	n += 8
+
 	if err != nil {
 		return n, fmt.Errorf("write height: %w", err)
 	}
@@ -79,10 +82,7 @@ func (e *Encoder) writeConfig(w io.Writer) (int, error) {
 }
 
 func (e *Encoder) writeImage(w io.Writer) (int, error) {
-	n := 0
-
-	m, err := e.writeConfig(w)
-	n += m
+	n, err := e.writeConfig(w)
 	if err != nil {
 		return n, fmt.Errorf("write config: %w", err)
 	}
@@ -91,8 +91,9 @@ func (e *Encoder) writeImage(w io.Writer) (int, error) {
 		return 0, nil
 	}
 
-	m, err = w.Write(e.img.Pix)
+	m, err := w.Write(e.img.Pix)
 	n += m
+
 	if err != nil {
 		return n, fmt.Errorf("write pix: %w", err)
 	}
@@ -102,12 +103,18 @@ func (e *Encoder) writeImage(w io.Writer) (int, error) {
 	return n, nil
 }
 
+// Write writes the contents of the Encoder to w.
 func (e *Encoder) Write(w io.Writer) (int, error) {
+	if e.img == nil {
+		return 0, nil
+	}
+
 	return e.writeImage(w)
 }
 
-func Encode(w io.Writer, img *im8.Im8) error {
-	_, err := NewEncoder(img).Write(w)
+// Encode writes src to w in im8f format.
+func Encode(w io.Writer, src image.Image) error {
+	_, err := NewEncoder(src).Write(w)
 	if err != nil {
 		return fmt.Errorf("write to w: %w", err)
 	}
